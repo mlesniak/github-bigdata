@@ -34,6 +34,9 @@ public class Main {
     long count = frame.count();
     LOG.debug("count={}", count);
 
+    LOG.info("Printing schema on stdout.");
+    frame.printSchema();
+
     sql.registerDataFrameAsTable(frame, "github");
     DataFrame repos = this.sql.sql("SELECT DISTINCT repo.name from github");
 

@@ -1,12 +1,15 @@
 package com.micromata.bigdata.github;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.DataFrame;
-import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Entry point.
@@ -22,29 +25,20 @@ public class Main {
     initializeSpark();
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     new Main().run(args);
   }
 
-  private void run(String[] args) {
+  private void run(String[] args) throws IOException {
     LOG.debug("SparkContext: {}", sc);
     LOG.debug("SQLContext: {}", sql);
 
+    LOG.info("Loading");
     DataFrame frame = sql.jsonFile("data/raw/2015-01-01-15.json.gz");
-    long count = frame.count();
-    LOG.debug("count={}", count);
-
-    LOG.info("Printing schema on stdout.");
-    frame.printSchema();
-
-    sql.registerDataFrameAsTable(frame, "github");
-    DataFrame repos = this.sql.sql("SELECT DISTINCT repo.name from github");
-
-    for (Row row : repos.collectAsList()) {
-      LOG.info(row.getString(0));
-    }
-
-    LOG.trace("debug breakpoint");
+    LOG.info("Storing as parquet file.");
+    FileUtils.deleteDirectory(new File("data/processed/2015-01-01-15.json.gz.parquet"));
+    frame.saveAsParquetFile("data/processed/2015-01-01-15.json.gz.parquet");
+    LOG.info("Done.");
   }
 
   public void initializeSpark() {

@@ -85,6 +85,11 @@
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
+          <archive>
+            <manifest>
+              <mainClass>com.micromata.bigdata.github.Main</mainClass>
+            </manifest>
+          </archive>
         </configuration>
         <executions>
           <execution>
